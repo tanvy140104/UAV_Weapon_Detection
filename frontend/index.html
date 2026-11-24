@@ -1,0 +1,675 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>UAV Weapon Detection System</title>
+
+    <!-- Giu giao dien CSS goc -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* ==================================
+           1. NHAN DIEN ANH TINH
+        ================================== */
+
+        .ai-section,
+        .history-section {
+            margin-top: 24px;
+        }
+
+        .ai-description,
+        .history-description {
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+        .ai-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .ai-controls input[type="file"] {
+            max-width: 100%;
+        }
+
+        #ai-detect-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+        }
+
+        #ai-detect-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #ai-status {
+            margin: 12px 0;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        #ai-canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            margin-top: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+        }
+
+        #ai-canvas[hidden] {
+            display: none;
+        }
+
+        #ai-detection-list {
+            margin-top: 15px;
+            line-height: 1.8;
+        }
+
+        #ai-result-json {
+            background: #111827;
+            color: #d1fae5;
+            padding: 16px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 13px;
+        }
+
+        .ai-note {
+            margin-top: 12px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        /* ==================================
+           2. LICH SU NHAN DIEN
+        ================================== */
+
+        .history-warning {
+            color: #fbbf24;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .history-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            margin: 18px 0;
+        }
+
+        #history-refresh {
+            padding: 12px 20px;
+            background: #0284c7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        #history-refresh:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #history-status {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .history-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #334155;
+            border-radius: 8px;
+        }
+
+        .history-table {
+            width: 100%;
+            min-width: 850px;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #334155;
+            color: #e2e8f0;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .history-table th {
+            background: #1e293b;
+            color: #38bdf8;
+        }
+
+        .history-table tbody tr:hover {
+            background: #1e293b;
+        }
+
+        .history-badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .history-new {
+            background: #78350f;
+            color: #fde68a;
+        }
+
+        .history-confirmed {
+            background: #14532d;
+            color: #bbf7d0;
+        }
+
+        .history-false {
+            background: #334155;
+            color: #cbd5e1;
+        }
+
+        .history-label {
+            font-weight: bold;
+        }
+
+        .history-knife {
+            color: #f87171 !important;
+        }
+
+        .history-stick {
+            color: #fdba74 !important;
+        }
+
+        .history-gun {
+            color: #e879f9 !important;
+        }
+
+        .history-footer {
+            margin-top: 14px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        /* ==================================
+           3. NUT THAO TAC CANH BAO
+        ================================== */
+
+        .history-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .history-action {
+            border: none;
+            border-radius: 6px;
+            padding: 7px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+
+        .history-action:hover {
+            filter: brightness(1.15);
+        }
+
+        .history-action:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .history-action-confirm {
+            background: #15803d;
+        }
+
+        .history-action-false {
+            background: #b45309;
+        }
+
+        .history-action-reset {
+            background: #475569;
+        }
+
+        /* NUT XEM ANH - MOI */
+        .history-action-image {
+            background: #2563eb;
+        }
+
+        /* ==================================
+           4. CUA SO XEM ANH BANG CHUNG
+        ================================== */
+
+        .evidence-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .evidence-modal[hidden] {
+            display: none;
+        }
+
+        .evidence-box {
+            background: #0f172a;
+            color: white;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 95vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .evidence-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .evidence-header h3 {
+            margin: 0;
+            color: #38bdf8;
+        }
+
+        #evidence-close {
+            background: #b91c1c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 9px 15px;
+            cursor: pointer;
+        }
+
+        #evidence-image {
+            display: block;
+            max-width: 100%;
+            max-height: 70vh;
+            width: auto;
+            height: auto;
+            margin: 0 auto;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+
+        #evidence-image[hidden] {
+            display: none;
+        }
+
+        #evidence-message {
+            color: #cbd5e1;
+            margin: 12px 0;
+        }
+
+        .evidence-note {
+            color: #fbbf24;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="dashboard">
+
+    <!-- ======================================
+         1. TIEU DE
+    ======================================= -->
+
+    <header>
+        <h1>UAV WEAPON DETECTION SYSTEM</h1>
+
+        <p>
+            Hệ thống giám sát và phát hiện dao,
+            gậy, súng bằng camera UAV và AI
+        </p>
+    </header>
+
+    <!-- ======================================
+         2. CAMERA GIAM SAT
+    ======================================= -->
+
+    <section class="video-section">
+
+        <h2>Camera giám sát UAV</h2>
+
+        <div class="video-container">
+
+            <img
+                id="video-stream"
+                alt="Video giám sát"
+                hidden
+            >
+
+            <p id="video-placeholder">
+                Chưa bắt đầu giám sát
+            </p>
+
+        </div>
+    </section>
+
+    <!-- ======================================
+         3. DIEU KHIEN PHIEN
+    ======================================= -->
+
+    <section class="control-section">
+
+        <h2>Điều khiển giám sát</h2>
+
+        <div class="create-session-box">
+
+            <label for="video-source">
+                Nguồn video
+                (0 = webcam, hoặc đường dẫn MP4):
+            </label>
+
+            <input
+                type="text"
+                id="video-source"
+                value="data/videos/test.mp4"
+                placeholder="0 hoặc data/videos/test.mp4"
+            >
+
+            <button
+                type="button"
+                id="create-session-btn"
+            >
+                + Tạo phiên giám sát mới
+            </button>
+
+        </div>
+
+        <label for="session-id">
+            Mã phiên giám sát:
+        </label>
+
+        <input
+            type="text"
+            id="session-id"
+            value="59011adf-bbf8-46a6-8504-fd098d3b1b55"
+        >
+
+        <div class="control-buttons">
+
+            <button type="button" id="start-btn">
+                Bắt đầu giám sát
+            </button>
+
+            <button type="button" id="stop-btn">
+                Dừng giám sát
+            </button>
+
+        </div>
+
+        <div class="history-toolbar">
+            <label>Phiên gần đây <select id="session-list"><option value="">Chọn phiên</option></select></label>
+            <button id="session-refresh" type="button">Tải danh sách phiên</button>
+        </div>
+        <p>
+            Trạng thái:
+            <strong id="status-text">
+                Chưa cập nhật
+            </strong>
+        </p>
+
+        <p id="message-text">
+            Đang chờ kết nối Backend...
+        </p>
+
+    </section>
+
+    <!-- ======================================
+         4. NHAN DIEN ANH TINH
+    ======================================= -->
+
+    <section class="control-section ai-section">
+
+        <h2>Nhận diện vũ khí bằng AI</h2>
+
+        <p class="ai-description">
+            Chọn ảnh JPG hoặc PNG để gửi đến
+            FastAPI Backend. Mô hình YOLO11n
+            sẽ nhận diện dao, gậy và súng.
+        </p>
+
+        <div class="ai-controls">
+
+            <input
+                type="file"
+                id="ai-image-input"
+                accept="image/jpeg,image/png"
+            >
+
+            <button
+                type="button"
+                id="ai-detect-btn"
+            >
+                Nhận diện ảnh
+            </button>
+
+        </div>
+
+        <p id="ai-status">
+            Chưa chọn ảnh để nhận diện.
+        </p>
+
+        <canvas
+            id="ai-canvas"
+            hidden
+        ></canvas>
+
+        <div id="ai-detection-list">
+            Chưa có kết quả nhận diện.
+        </div>
+
+        <h3>Chi tiết kết quả từ Backend</h3>
+
+        <pre id="ai-result-json">Chưa có dữ liệu.</pre>
+
+        <p class="ai-note">
+            Hệ thống hỗ trợ nhận diện ảnh tĩnh
+            và nhận diện trực tiếp trên webcam/video.
+        </p>
+
+    </section>
+
+    <!-- ======================================
+         5. LICH SU VA CANH BAO
+    ======================================= -->
+
+    <section
+        class="control-section history-section"
+        id="history-section"
+    >
+
+        <h2>Lịch sử phát hiện và cảnh báo</h2>
+
+        <p class="history-description">
+           
+Dữ liệu nhận diện từ YOLO11n được lưu vào PostgreSQL và truy xuất thông qua FastAPI Backend.
+
+        </p>
+
+        <p class="history-warning">
+            Hãy xem ảnh bằng chứng trước khi
+            xác nhận hoặc đánh dấu nhận diện sai.
+            AI có thể dự đoán nhầm.
+        </p>
+
+        <form id="history-filters" class="history-toolbar" aria-label="Lọc lịch sử">
+            <label>Mã phiên <input id="history-session" maxlength="100" placeholder="Tất cả phiên"></label>
+            <label>Đối tượng <select id="history-label">
+                <option value="">Tất cả</option><option value="knife">Dao</option>
+                <option value="stick">Gậy</option><option value="gun">Súng</option>
+            </select></label>
+            <label>Trạng thái <select id="history-alert-status">
+                <option value="">Tất cả</option><option value="NEW">Chưa xác nhận</option>
+                <option value="CONFIRMED">Đã xác nhận</option>
+                <option value="FALSE_POSITIVE">Nhận diện sai</option>
+            </select></label>
+            <label>Từ thời điểm <input id="history-from" type="datetime-local"></label>
+            <label>Đến thời điểm <input id="history-to" type="datetime-local"></label>
+            <button type="submit">Lọc lịch sử</button>
+        </form>
+        <div class="history-toolbar">
+
+            <button
+                type="button"
+                id="history-refresh"
+            >
+                Làm mới lịch sử
+            </button>
+
+            <span id="history-status">
+                Đang tải dữ liệu...
+            </span>
+
+        </div>
+
+        <div class="history-toolbar">
+            <button id="history-prev" type="button" disabled>Trang trước</button>
+            <span id="history-page" aria-live="polite"></span>
+            <button id="history-next" type="button" disabled>Trang sau</button>
+        </div>
+        <div class="history-table-wrapper">
+
+            <table class="history-table">
+
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Đối tượng</th>
+                        <th>Độ tin cậy</th>
+                        <th>Thời gian</th>
+                        <th>Mã phiên</th>
+                        <th>Trạng thái / Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody id="history-body">
+
+                    <tr>
+                        <td colspan="6">
+                            Đang tải lịch sử...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+        </div>
+
+        <p class="history-footer">
+            Tự động cập nhật mỗi 5 giây.
+            Mỗi trang hiển thị 20 bản ghi theo bộ lọc.
+            Bản ghi cũ không có ảnh sẽ không
+            có nút Xem ảnh.
+        </p>
+
+    </section>
+
+    <!-- ======================================
+         6. CHAN TRANG
+    ======================================= -->
+
+    <footer>
+        <p>
+            UAV Weapon Detection -
+            AI Monitoring System
+        </p>
+    </footer>
+
+</main>
+
+<!-- ======================================
+     7. CUA SO XEM ANH BANG CHUNG
+====================================== -->
+
+<div
+    id="evidence-modal"
+    class="evidence-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="evidence-title"
+>
+
+    <div class="evidence-box">
+
+        <div class="evidence-header">
+
+            <h3 id="evidence-title">
+                Ảnh bằng chứng
+            </h3>
+
+            <button
+                type="button"
+                id="evidence-close"
+            >
+                Đóng
+            </button>
+
+        </div>
+
+        <p id="evidence-message">
+            Đang tải ảnh...
+        </p>
+
+        <img
+            id="evidence-image"
+            alt="Ảnh bằng chứng nhận diện AI"
+            hidden
+        >
+
+        <p class="evidence-note">
+            Bounding box và nhãn là kết quả AI
+            dự đoán. Người quản lý cần kiểm tra
+            trước khi xác nhận.
+        </p>
+
+    </div>
+
+</div>
+
+<!-- GIU NGUYEN JAVASCRIPT CHUC NANG CU -->
+<script src="script.js"></script>
+
+<!-- ======================================
+     8. JAVASCRIPT LICH SU VA ANH BANG CHUNG
+====================================== -->
+
+<script src="history.js"></script>
+</body>
+</html>

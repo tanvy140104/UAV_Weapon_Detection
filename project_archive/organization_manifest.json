@@ -1,0 +1,165 @@
+{
+  "created_at": "2026-11-23T22:34:33.379227",
+  "moves": [
+    {
+      "source": "add_snapshot_column.py",
+      "destination": "project_archive\\database_setup\\add_snapshot_column.py"
+    },
+    {
+      "source": "build_combined_dataset.py",
+      "destination": "project_archive\\ai_training\\build_combined_dataset.py"
+    },
+    {
+      "source": "build_gks_dataset.py",
+      "destination": "project_archive\\ai_training\\build_gks_dataset.py"
+    },
+    {
+      "source": "check_gks_dataset.py",
+      "destination": "project_archive\\ai_evaluation\\check_gks_dataset.py"
+    },
+    {
+      "source": "check_gks_duplicates.py",
+      "destination": "project_archive\\ai_evaluation\\check_gks_duplicates.py"
+    },
+    {
+      "source": "check_knife_dataset.py",
+      "destination": "project_archive\\ai_evaluation\\check_knife_dataset.py"
+    },
+    {
+      "source": "collect_gks_errors.py",
+      "destination": "project_archive\\ai_training\\collect_gks_errors.py"
+    },
+    {
+      "source": "collect_holdout_test.py",
+      "destination": "project_archive\\ai_training\\collect_holdout_test.py"
+    },
+    {
+      "source": "compare_models_webcam.py",
+      "destination": "project_archive\\ai_evaluation\\compare_models_webcam.py"
+    },
+    {
+      "source": "create_detections_table.py",
+      "destination": "project_archive\\database_setup\\create_detections_table.py"
+    },
+    {
+      "source": "evaluate_finetune_test.py",
+      "destination": "project_archive\\ai_evaluation\\evaluate_finetune_test.py"
+    },
+    {
+      "source": "evaluate_gks_test.py",
+      "destination": "project_archive\\ai_evaluation\\evaluate_gks_test.py"
+    },
+    {
+      "source": "evaluate_holdout_ab.py",
+      "destination": "project_archive\\ai_evaluation\\evaluate_holdout_ab.py"
+    },
+    {
+      "source": "finetune_gks_field.py",
+      "destination": "project_archive\\ai_training\\finetune_gks_field.py"
+    },
+    {
+      "source": "fix_field_samples.py",
+      "destination": "project_archive\\ai_training\\fix_field_samples.py"
+    },
+    {
+      "source": "fix_knife_labels.py",
+      "destination": "project_archive\\ai_training\\fix_knife_labels.py"
+    },
+    {
+      "source": "generate_test_video.py",
+      "destination": "project_archive\\utilities\\generate_test_video.py"
+    },
+    {
+      "source": "inspect_field_samples.py",
+      "destination": "project_archive\\ai_evaluation\\inspect_field_samples.py"
+    },
+    {
+      "source": "inspect_nust_train.py",
+      "destination": "project_archive\\ai_evaluation\\inspect_nust_train.py"
+    },
+    {
+      "source": "label_field_knives.py",
+      "destination": "project_archive\\ai_training\\label_field_knives.py"
+    },
+    {
+      "source": "plan_gks_split.py",
+      "destination": "project_archive\\ai_training\\plan_gks_split.py"
+    },
+    {
+      "source": "prepare_field_dataset.py",
+      "destination": "project_archive\\ai_training\\prepare_field_dataset.py"
+    },
+    {
+      "source": "prepare_finetune_mix.py",
+      "destination": "project_archive\\ai_training\\prepare_finetune_mix.py"
+    },
+    {
+      "source": "prepare_gks_labels.py",
+      "destination": "project_archive\\ai_training\\prepare_gks_labels.py"
+    },
+    {
+      "source": "prepare_knife_labels.py",
+      "destination": "project_archive\\ai_training\\prepare_knife_labels.py"
+    },
+    {
+      "source": "prepare_relabel_knives.py",
+      "destination": "project_archive\\ai_training\\prepare_relabel_knives.py"
+    },
+    {
+      "source": "relabel_final_knives.py",
+      "destination": "project_archive\\ai_training\\relabel_final_knives.py"
+    },
+    {
+      "source": "resume_gks_yolo.py",
+      "destination": "project_archive\\ai_training\\resume_gks_yolo.py"
+    },
+    {
+      "source": "review_field_samples.py",
+      "destination": "project_archive\\ai_evaluation\\review_field_samples.py"
+    },
+    {
+      "source": "test_detection_history.py",
+      "destination": "project_archive\\tests\\test_detection_history.py"
+    },
+    {
+      "source": "test_evidence_service.py",
+      "destination": "project_archive\\tests\\test_evidence_service.py"
+    },
+    {
+      "source": "test_gks_webcam.py",
+      "destination": "project_archive\\tests\\test_gks_webcam.py"
+    },
+    {
+      "source": "test_train_gks.py",
+      "destination": "project_archive\\tests\\test_train_gks.py"
+    },
+    {
+      "source": "test_webcam.py",
+      "destination": "project_archive\\tests\\test_webcam.py"
+    },
+    {
+      "source": "test_yolo_webcam.py",
+      "destination": "project_archive\\tests\\test_yolo_webcam.py"
+    },
+    {
+      "source": "train_gks_yolo.py",
+      "destination": "project_archive\\ai_training\\train_gks_yolo.py"
+    },
+    {
+      "source": "verify_combined_yolo.py",
+      "destination": "project_archive\\ai_evaluation\\verify_combined_yolo.py"
+    },
+    {
+      "source": "verify_field_labels.py",
+      "destination": "project_archive\\ai_evaluation\\verify_field_labels.py"
+    },
+    {
+      "source": "verify_finetune_mix.py",
+      "destination": "project_archive\\ai_evaluation\\verify_finetune_mix.py"
+    },
+    {
+      "source": "verify_gks_labels.py",
+      "destination": "project_archive\\ai_evaluation\\verify_gks_labels.py"
+    }
+  ]
+}

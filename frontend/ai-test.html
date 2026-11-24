@@ -1,0 +1,328 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>UAV Weapon Detection - AI Test</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: Arial, sans-serif;
+            background: #eef2f7;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: auto;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px #00000012;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #1d4ed8;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        #status {
+            padding: 12px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        canvas {
+            display: none;
+            width: 100%;
+            height: auto;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+        }
+
+        pre {
+            background: #111827;
+            color: #d1fae5;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>UAV Weapon Detection</h1>
+
+    <p>
+        Nhận diện dao, gậy và súng bằng YOLO11n.
+        Mô hình AI chạy trên FastAPI Backend.
+    </p>
+
+    <div class="controls">
+        <input
+            type="file"
+            id="imageInput"
+            accept="image/jpeg,image/png"
+        >
+
+        <button id="detectBtn">
+            Nhận diện ảnh
+        </button>
+    </div>
+
+    <div id="status">
+        Chọn ảnh để bắt đầu.
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <h3>Kết quả từ Backend</h3>
+
+    <pre id="result">Chưa có kết quả.</pre>
+
+</div>
+
+<script>
+    // =====================================
+    // 1. KHAI BAO THANH PHAN GIAO DIEN
+    // =====================================
+
+    const imageInput =
+        document.getElementById("imageInput");
+
+    const detectBtn =
+        document.getElementById("detectBtn");
+
+    const statusBox =
+        document.getElementById("status");
+
+    const resultBox =
+        document.getElementById("result");
+
+    const canvas =
+        document.getElementById("canvas");
+
+    const ctx = canvas.getContext("2d");
+
+    // =====================================
+    // 2. MAU KHUNG THEO LOAI DOI TUONG
+    // =====================================
+
+    const COLORS = {
+        knife: "#ef4444",
+        stick: "#f59e0b",
+        gun: "#8b5cf6"
+    };
+
+    // =====================================
+    // 3. VE BOUNDING BOX
+    // =====================================
+
+    function drawDetection(detection) {
+
+        const box = detection.bbox;
+
+        const color =
+            COLORS[detection.label] || "#22c55e";
+
+        const x = box.x1;
+        const y = box.y1;
+        const w = box.x2 - box.x1;
+        const h = box.y2 - box.y1;
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = Math.max(
+            2, canvas.width / 250
+        );
+
+        ctx.strokeRect(x, y, w, h);
+
+        const text =
+            detection.label + " " +
+            (detection.confidence * 100).toFixed(1)
+            + "%";
+
+        const fontSize = Math.max(
+            15, Math.round(canvas.width / 45)
+        );
+
+        ctx.font = "bold " + fontSize + "px Arial";
+
+        const textWidth =
+            ctx.measureText(text).width + 12;
+
+        const textY = Math.max(
+            fontSize + 8, y
+        );
+
+        ctx.fillStyle = color;
+
+        ctx.fillRect(
+            x,
+            textY - fontSize - 8,
+            textWidth,
+            fontSize + 12
+        );
+
+        ctx.fillStyle = "white";
+
+        ctx.fillText(
+            text,
+            x + 6,
+            textY
+        );
+    }
+
+    // =====================================
+    // 4. GUI ANH DEN FASTAPI BACKEND
+    // =====================================
+
+    async function detectImage() {
+
+        const file = imageInput.files[0];
+
+        if (!file) {
+            statusBox.textContent =
+                "Vui lòng chọn một ảnh trước.";
+            return;
+        }
+
+        if (!["image/jpeg", "image/png"].includes(
+            file.type
+        )) {
+            statusBox.textContent =
+                "Chỉ hỗ trợ JPG hoặc PNG.";
+            return;
+        }
+
+        detectBtn.disabled = true;
+
+        statusBox.textContent =
+            "Đang gửi ảnh đến Backend và chạy AI...";
+
+        resultBox.textContent =
+            "Đang xử lý...";
+
+        try {
+
+            // Hien thi anh goc
+            const bitmap =
+                await createImageBitmap(file);
+
+            canvas.width = bitmap.width;
+            canvas.height = bitmap.height;
+
+            ctx.clearRect(
+                0, 0,
+                canvas.width,
+                canvas.height
+            );
+
+            ctx.drawImage(
+                bitmap,
+                0, 0,
+                canvas.width,
+                canvas.height
+            );
+
+            bitmap.close();
+            canvas.style.display = "block";
+
+            // Goi API tren cung server FastAPI
+            const response = await fetch(
+                "/api/detection/image",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": file.type
+                    },
+                    body: file
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.detail || "API loi"
+                );
+            }
+
+            // Ve cac khung nhan dien
+            for (const detection of data.detections) {
+                drawDetection(detection);
+            }
+
+            // Hien thi thong tin
+            resultBox.textContent =
+                JSON.stringify(data, null, 2);
+
+            if (data.has_weapon) {
+                statusBox.textContent =
+                    "Phát hiện " +
+                    data.detection_count +
+                    " đối tượng nghi vấn.";
+            } else {
+                statusBox.textContent =
+                    "Không phát hiện đối tượng đạt ngưỡng.";
+            }
+
+        } catch (error) {
+
+            statusBox.textContent =
+                "Lỗi: " + error.message;
+
+            resultBox.textContent =
+                String(error);
+
+        } finally {
+
+            detectBtn.disabled = false;
+        }
+    }
+
+    // =====================================
+    // 5. GAN SU KIEN NUT NHAN DIEN
+    // =====================================
+
+    detectBtn.addEventListener(
+        "click",
+        detectImage
+    );
+</script>
+
+</body>
+</html>

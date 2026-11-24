@@ -1,0 +1,27 @@
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.py[cod]
+runtime/
+*.log
+*.db
+*.db-shm
+*.db-wal
+
+# Share the demo video, not datasets, evidence or local database backups.
+/data/*
+!/data/videos/
+/data/videos/*
+!/data/videos/test.mp4
+
+# Keep only the model used by the backend; omit training/evaluation artifacts.
+/models/*
+!/models/trained/
+/models/trained/*
+!/models/trained/gks_field_ft_10e/
+/models/trained/gks_field_ft_10e/*
+!/models/trained/gks_field_ft_10e/weights/
+/models/trained/gks_field_ft_10e/weights/*
+!/models/trained/gks_field_ft_10e/weights/best.pt

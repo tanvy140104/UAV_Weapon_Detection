@@ -1,0 +1,10 @@
+# Backend + existing AI integration; Python 3.12.
+fastapi==0.163.1
+uvicorn==0.54.0
+psycopg[binary]==3.3.9
+python-dotenv==1.2.4
+ultralytics==8.4.216
+torch==2.14.1
+torchvision==0.29.1
+opencv-python==5.0.0.93
+numpy==2.5.4

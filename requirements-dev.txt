@@ -1,0 +1,4 @@
+-r requirements.txt
+httpx==0.28.1
+# Tests use Python's built-in unittest.
+websockets==17.4
